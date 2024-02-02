@@ -14,6 +14,7 @@ class EmpresaRepository:
             emp.id = empresa[0]
             emp.nome = empresa[1]
             emp.codigo = empresa[2]
+            emp.url = empresa[3]
             lista.append(emp)
         return lista
 
@@ -21,7 +22,7 @@ class EmpresaRepository:
         existente = DB.getByProperty(self.__table, "codigo", empresa.codigo)
         if len(existente) > 0:
             return True
-        properties = {"nome":empresa.nome,"codigo":empresa.codigo}
+        properties = {"nome":empresa.nome,"codigo":empresa.codigo, "url": empresa.url}
         add = DB.addRecord(self.__table, properties)
         return add.rowcount == 1
 

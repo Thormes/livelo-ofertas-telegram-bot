@@ -17,17 +17,18 @@ class ParceriaRepository:
             emp.id = parceria[0]
             emp.nome = parceria[1]
             emp.codigo = parceria[2]
+            emp.url = parceria[3]
             parc = Parceria()
-            parc.id = parceria[3]
+            parc.id = parceria[4]
             parc.empresa = emp
-            parc.moeda = parceria[5]
-            parc.pontos = parceria[6]
-            parc.pontosClube = parceria[7]
-            parc.oferta = True if parceria[8] == 1 else False
-            if not parceria[9] is None:
-                parc.inicio = datetime.datetime.strptime(parceria[9], "%Y-%m-%d")
-                parc.fim = datetime.datetime.strptime(parceria[10], "%Y-%m-%d")
-            parc.regras = parceria[11]
+            parc.moeda = parceria[6]
+            parc.pontos = parceria[7]
+            parc.pontosClube = parceria[8]
+            parc.oferta = True if parceria[9] == 1 else False
+            if not parceria[10] is None:
+                parc.inicio = datetime.datetime.strptime(parceria[10], "%Y-%m-%d")
+                parc.fim = datetime.datetime.strptime(parceria[11], "%Y-%m-%d")
+            parc.regras = parceria[12]
             lista.append(parc)
         return lista
 

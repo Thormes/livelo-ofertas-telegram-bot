@@ -12,10 +12,10 @@ from Repository.EmpresaRepository import EmpresaRepository
 def extractEmpresas():
     options = webdriver.ChromeOptions()
     options.add_argument("--headless=new")
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome()
     driver.get("https://www.livelo.com.br/ganhe-pontos-compre-e-pontue")
     try:
-        myElem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'div-cardsParity')))
+        myElem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'div-parity')))
         print("Page is ready!")
     except TimeoutException:
         print("Loading took too much time!")
@@ -33,6 +33,7 @@ def extractEmpresas():
         empresa = Empresa()
         empresa.nome = card.empresa
         empresa.codigo = card.codigo
+        empresa.url = card.url
         empresa_repository.save(empresa)
 
     driver.close()
