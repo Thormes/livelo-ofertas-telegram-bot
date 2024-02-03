@@ -40,6 +40,7 @@ def cadastraParcerias(empresas: list, parcerias: Any):
         newParceria.moeda = parceria["currency"]
         newParceria.pontos = int(parceria["parity"])
         newParceria.pontosClube = int(parceria["parityClub"])
+        newParceria.pontosBase = int(parceria["parityBau"])
         newParceria.oferta = parceria["promotion"]
         newParceria.regras = parceria['legalTerms']
         getDatesFromLegalTerm(newParceria)
@@ -54,7 +55,7 @@ def findEmpresa(empresas: list, codigo: str) -> Optional[Empresa]:
 
 def getDatesFromLegalTerm(parceria: Parceria):
     texto = parceria.regras
-    padrao = r'(\d{1,2}(?:\/\d{1,2})?(?:\/\d{1,2})?) a (\d{1,2}/\d{1,2}/\d{4})'
+    padrao = r'(\d{1,2}(?:\/\d{1,2})?(?:\/\d{2,4})?) a (\d{1,2}/\d{1,2}/\d{2,4})'
     # padrão para capturar datas
 
     datas_encontradas = re.search(padrao, texto)
@@ -62,14 +63,26 @@ def getDatesFromLegalTerm(parceria: Parceria):
     if datas_encontradas:
         inicio = datas_encontradas.group(1)
         fim = datas_encontradas.group(2)
-        data_fim = datetime.strptime(fim, "%d/%m/%Y")
+        str_fim = fim.split("/")
+        if len(str_fim[2]) == 4:
+            format = "%d/%m/%Y"
+        elif len(str_fim[2]) == 2:
+            format = "%d/%m/%y"
+        else:
+            raise ValueError("Data fim inválida: " + fim)
+
+        data_fim = datetime.strptime(fim, format)
         dados_inicio = inicio.split("/")
         if len(dados_inicio) == 1:
             data_inicio = datetime.strptime(f"{inicio}/{data_fim.month}/{data_fim.year}", "%d/%m/%Y")
         elif len(dados_inicio) == 2:
             data_inicio = datetime.strptime(f"{dados_inicio[0]}/{dados_inicio[1]}/{data_fim.year}", "%d/%m/%Y")
         elif len(dados_inicio) == 3:
-            data_inicio = datetime.strptime(inicio, "%d/%m/%Y")
+            if len(dados_inicio[2]) == 4:
+                format = "%d/%m/%Y"
+            elif len(dados_inicio[2]) == 2:
+                format = "%d/%m/%y"
+            data_inicio = datetime.strptime(inicio, format)
         else:
             raise ValueError("Não reconhecível data de início: " + inicio)
 

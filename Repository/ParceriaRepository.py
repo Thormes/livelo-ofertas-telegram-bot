@@ -10,7 +10,7 @@ class ParceriaRepository:
 
     def getAll(self) -> List[Parceria]:
         lista = []
-        query = "SELECT *, parceria.id as parceria_id FROM empresa INNER JOIN parceria ON parceria.empresa_id = empresa.id"
+        query = "SELECT * FROM empresa INNER JOIN parceria ON parceria.empresa_id = empresa.id"
         parcerias = DB.cur.execute(query).fetchall()
         for parceria in parcerias:
             emp = Empresa()
@@ -21,9 +21,10 @@ class ParceriaRepository:
             parc = Parceria()
             parc.id = parceria[4]
             parc.empresa = emp
-            parc.moeda = parceria[6]
-            parc.pontos = parceria[7]
-            parc.pontosClube = parceria[8]
+            parc.moeda = parceria[5]
+            parc.pontos = parceria[6]
+            parc.pontosClube = parceria[7]
+            parc.pontosBase = parceria[8]
             parc.oferta = True if parceria[9] == 1 else False
             if not parceria[10] is None:
                 parc.inicio = datetime.datetime.strptime(parceria[10], "%Y-%m-%d")
@@ -34,7 +35,7 @@ class ParceriaRepository:
 
     def save(self, parceria: Parceria) -> bool:
         properties = {"moeda": parceria.moeda, "pontos": parceria.pontos, "pontos_clube": parceria.pontosClube,
-                      "oferta": parceria.oferta, "regras": parceria.regras, "empresa_id": parceria.empresa.id}
+                      "oferta": parceria.oferta, "regras": parceria.regras, "empresa_id": parceria.empresa.id, "pontos_base": parceria.pontosBase}
         if not parceria.inicio is None:
             properties["inicio"] = parceria.inicio.strftime("%Y-%m-%d")
         if not parceria.fim is None:

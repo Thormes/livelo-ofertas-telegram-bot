@@ -4,13 +4,17 @@ import os
 con = sqlite3.connect("database.db")
 cur = con.cursor()
 
+
 def createTables():
     cur.execute("CREATE TABLE IF NOT EXISTS empresa(id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT, codigo TEXT, "
                 "url TEXT)")
     cur.execute(
-        "CREATE TABLE IF NOT EXISTS parceria(id INTEGER PRIMARY KEY AUTOINCREMENT, empresa_id INTEGER, moeda TEXT, "
-        "pontos INTEGER, pontos_clube INTEGER, oferta BOOLEAN, inicio DATE, fim DATE, regras TEXT, FOREIGN KEY ("
-        "empresa_id) REFERENCES empresa (id))")
+        "CREATE TABLE IF NOT EXISTS parceria(empresa_id INTEGER PRIMARY KEY, moeda TEXT, "
+        "pontos INTEGER, pontos_clube INTEGER, pontos_base INTEGER, oferta BOOLEAN, inicio DATE, fim DATE, "
+        "regras TEXT, FOREIGN KEY (empresa_id) REFERENCES empresa (id))")
+    cur.execute("CREATE TABLE IF NOT EXISTS user (chat_id INTEGER PRIMARY KEY, name TEXT, last_name TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS acompanhamento (chat_id INTEGER, empresa_codigo TEXT, ultima_informacao "
+                "DATE, PRIMARY KEY(chat_id, empresa_codigo))")
     con.commit()
 
 
@@ -21,8 +25,8 @@ def getAll(table: str):
     return cur.execute(f"SELECT * FROM {table}").fetchall()
 
 
-def getById(table: str, id: int):
-    param = (id,)
+def getById(table: str, entityId: int):
+    param = (entityId,)
     return cur.execute(f"SELECT * FROM {table} where id = ?", param).fetchone()
 
 
