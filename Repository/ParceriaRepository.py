@@ -25,17 +25,18 @@ class ParceriaRepository:
             parc.pontos = parceria[6]
             parc.pontosClube = parceria[7]
             parc.pontosBase = parceria[8]
-            parc.oferta = True if parceria[9] == 1 else False
-            if not parceria[10] is None:
-                parc.inicio = datetime.datetime.strptime(parceria[10], "%Y-%m-%d")
-                parc.fim = datetime.datetime.strptime(parceria[11], "%Y-%m-%d")
-            parc.regras = parceria[12]
+            parc.conectivo = parceria[9]
+            parc.oferta = True if parceria[10] == 1 else False
+            if not parceria[11] is None:
+                parc.inicio = datetime.datetime.strptime(parceria[11], "%Y-%m-%d")
+                parc.fim = datetime.datetime.strptime(parceria[12], "%Y-%m-%d")
+            parc.regras = parceria[13]
             lista.append(parc)
         return lista
 
     def save(self, parceria: Parceria) -> bool:
         properties = {"moeda": parceria.moeda, "pontos": parceria.pontos, "pontos_clube": parceria.pontosClube,
-                      "oferta": parceria.oferta, "regras": parceria.regras, "empresa_id": parceria.empresa.id, "pontos_base": parceria.pontosBase}
+                      "oferta": parceria.oferta, "regras": parceria.regras, "empresa_id": parceria.empresa.id, "pontos_base": parceria.pontosBase, "conectivo":parceria.conectivo}
         if not parceria.inicio is None:
             properties["inicio"] = parceria.inicio.strftime("%Y-%m-%d")
         if not parceria.fim is None:

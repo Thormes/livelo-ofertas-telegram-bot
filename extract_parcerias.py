@@ -2,6 +2,7 @@ import json
 import re
 from datetime import datetime
 from typing import Any, Optional
+from Logger.logger import get_logger
 
 import requests
 
@@ -9,32 +10,37 @@ from Model.Model import Empresa, Parceria
 from Repository.EmpresaRepository import EmpresaRepository
 from Repository.ParceriaRepository import ParceriaRepository
 
+loger = get_logger("Parcerias", "parcerias.log")
 
-def get_parcerias():
+def extract_parcerias():
     repository = EmpresaRepository()
+    loger.info("Buscando Empresas")
     empresas = repository.getAll()
+    loger.info(len(empresas), "encontradas")
     codigos = []
 
     for empresa in empresas:
         if len(empresa.codigo) == 3: codigos.append(empresa.codigo)
 
     param = ",".join(sorted(codigos))
-
+    loger.info("Solicitando parcerias atualizadas")
     response = requests.get("https://apis.pontoslivelo.com.br/partners-campaign/v1/campaigns/active",
                             {"partnersCodes": param})
     parcerias = json.loads(response.text)
 
-    cadastraParcerias(empresas, parcerias)
+    __cadastraParcerias(empresas, parcerias)
 
 
-def cadastraParcerias(empresas: list, parcerias: Any):
+def __cadastraParcerias(empresas: list, parcerias: Any):
     if parcerias is None:
         raise ValueError("Json de parcerias não é um json válido")
     parceria_repository = ParceriaRepository()
+    loger.info("Limpando registro de parcerias")
     parceria_repository.limpar()
+    loger.info("Iniciando cadastro de", len(parcerias), "parcerias")
     for parceria in parcerias:
         codigo = parceria['partnerCode']
-        empresa = findEmpresa(empresas, codigo)
+        empresa = __findEmpresa(empresas, codigo)
         newParceria = Parceria()
         newParceria.empresa = empresa
         newParceria.moeda = parceria["currency"]
@@ -43,17 +49,18 @@ def cadastraParcerias(empresas: list, parcerias: Any):
         newParceria.pontosBase = int(parceria["parityBau"])
         newParceria.oferta = parceria["promotion"]
         newParceria.regras = parceria['legalTerms']
-        getDatesFromLegalTerm(newParceria)
+        newParceria.conectivo = parceria['separator']
+        __getDatesFromLegalTerm(newParceria)
         parceria_repository.save(newParceria)
 
 
-def findEmpresa(empresas: list, codigo: str) -> Optional[Empresa]:
+def __findEmpresa(empresas: list, codigo: str) -> Optional[Empresa]:
     for empresa in empresas:
         if empresa.codigo == codigo:
             return empresa
     return None
 
-def getDatesFromLegalTerm(parceria: Parceria):
+def __getDatesFromLegalTerm(parceria: Parceria):
     texto = parceria.regras
     padrao = r'(\d{1,2}(?:\/\d{1,2})?(?:\/\d{2,4})?) a (\d{1,2}/\d{1,2}/\d{2,4})'
     # padrão para capturar datas
@@ -91,4 +98,4 @@ def getDatesFromLegalTerm(parceria: Parceria):
 
 
 if __name__ == "__main__":
-    get_parcerias()
+    extract_parcerias()

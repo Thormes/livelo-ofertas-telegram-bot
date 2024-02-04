@@ -10,8 +10,8 @@ def createTables():
                 "url TEXT)")
     cur.execute(
         "CREATE TABLE IF NOT EXISTS parceria(empresa_id INTEGER PRIMARY KEY, moeda TEXT, "
-        "pontos INTEGER, pontos_clube INTEGER, pontos_base INTEGER, oferta BOOLEAN, inicio DATE, fim DATE, "
-        "regras TEXT, FOREIGN KEY (empresa_id) REFERENCES empresa (id))")
+        "pontos INTEGER, pontos_clube INTEGER, pontos_base INTEGER, conectivo TEXT, oferta BOOLEAN, inicio DATE, "
+        "fim DATE, regras TEXT, FOREIGN KEY (empresa_id) REFERENCES empresa (id))")
     cur.execute("CREATE TABLE IF NOT EXISTS user (chat_id INTEGER PRIMARY KEY, name TEXT, last_name TEXT)")
     cur.execute("CREATE TABLE IF NOT EXISTS acompanhamento (chat_id INTEGER, empresa_codigo TEXT, ultima_informacao "
                 "DATE, PRIMARY KEY(chat_id, empresa_codigo))")

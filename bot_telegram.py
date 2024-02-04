@@ -4,9 +4,13 @@ from telegram import Update, InlineQueryResultArticle, InputTextMessageContent, 
 from telegram.ext import filters, MessageHandler, ApplicationBuilder, CommandHandler, ContextTypes, InlineQueryHandler
 
 from Model.Model import User, Acompanhamento
-from read_parcerias import get_parcerias, get_ofertas
+from read_parcerias import get_parcerias as get_parcerias_salvas, get_ofertas
+from extract_parcerias import extract_parcerias
+from extract_empresas import extractEmpresas
 from Repository.UserRepository import UserRepository
 from Repository.AcompanhamentoRepository import AcompanhamentoRepository
+import threading
+import schedule
 
 # logging.basicConfig(
 #     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -59,7 +63,7 @@ def escape_characters(text: str) -> str:
 
 
 if __name__ == '__main__':
-    application = ApplicationBuilder().token(token).build()
+    application = ApplicationBuilder().token(token).read_timeout(30).write_timeout(30).build()
     start_handler = CommandHandler('start', start)
     oferta_handler = CommandHandler('ofertas', ofertas)
     add_user_handler = MessageHandler(filters.ALL, addUser)
@@ -69,3 +73,5 @@ if __name__ == '__main__':
     application.add_handler(oferta_handler)
     application.add_handler(unknown_handler)
     application.run_polling(timeout=30)
+    schedule.every(6).hours.do(extract_parcerias())
+    schedule.every().day.at("06:00").do(extractEmpresas())

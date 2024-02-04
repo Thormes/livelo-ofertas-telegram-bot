@@ -29,10 +29,10 @@ class Acompanhamento:
 class Parceria:
     def __init__(self):
         self.moeda = "R$"
-        self.base = 1
         self.pontos = 0
         self.pontosClube = 0
         self.pontosBase = 0
+        self.conectivo = ""
         self.oferta = False
         self.inicio = None
         self.fim = None
@@ -45,13 +45,26 @@ class Parceria:
         return self.oferta and self.inicio is not None and (self.inicio <= hoje and self.fim >= hoje)
 
     def __str__(self):
+        txt_conectivo = ""
+        if self.conectivo == "até":
+            txt_conectivo = "até "
+
+        txt_pontos = "pontos" if self.pontos >1 else "ponto"
+
+
+
         if self.__emOferta__():
-            return f"*{self.empresa.nome}* - {self.pontos} pontos ({self.pontosClube} clube) por {self.moeda} - OFERTA ({self.inicio.strftime('%d/%m/%Y')} a {self.fim.strftime('%d/%m/%Y')}). _{self.regras}_ {self.empresa.url}"
+            return f"*{self.empresa.nome}* - {txt_conectivo}{self.pontos} {txt_pontos} ({self.pontosClube} clube) por {self.moeda} - OFERTA ({self.inicio.strftime('%d/%m/%Y')} a {self.fim.strftime('%d/%m/%Y')}). _{self.regras}_ {self.empresa.url}"
         else:
-            return f"*{self.empresa.nome}* - {self.pontos} pontos ({self.pontosClube} clube) por {self.moeda}. _{self.regras}_ {self.empresa.url}"
+            return f"*{self.empresa.nome}* - {txt_conectivo}{self.pontos} {txt_pontos} ({self.pontosClube} clube) por {self.moeda}. _{self.regras}_ {self.empresa.url}"
 
     def toMarkdown(self):
         hoje = datetime.datetime.today()
+        txt_conectivo = ""
+        if self.conectivo == "até":
+            txt_conectivo = "até "
+
+        txt_pontos = "pontos" if self.pontos >1 else "ponto"
         if self.__emOferta__():
             extras = []
             if self.inicio.strftime("%Y%m%d") == hoje.strftime("%Y%m%d"):
@@ -59,12 +72,17 @@ class Parceria:
 
             if self.fim.strftime("%Y%m%d") == hoje.strftime("%Y%m%d"):
                 extras.append("🏁")
-            return f"*{self.empresa.nome}* {', '.join(extras)} - {self.pontos} pontos ({self.pontosClube} clube) por {self.moeda} - OFERTA ({self.inicio.strftime('%d/%m/%Y')} a {self.fim.strftime('%d/%m/%Y')}). _{self.regras}_ {self.empresa.url}"
+            return f"*{self.empresa.nome}* {', '.join(extras)} - {txt_conectivo}{self.pontos} {txt_pontos} ({self.pontosClube} clube) por {self.moeda} - OFERTA ({self.inicio.strftime('%d/%m/%Y')} a {self.fim.strftime('%d/%m/%Y')}). _{self.regras}_ {self.empresa.url}"
         else:
-            return f"*{self.empresa.nome}* - {self.pontos} pontos ({self.pontosClube} clube) por {self.moeda}. _{self.regras}_ {self.empresa.url}"
+            return f"*{self.empresa.nome}* - {txt_conectivo}{self.pontos} {txt_pontos} ({self.pontosClube} clube) por {self.moeda}. _{self.regras}_ {self.empresa.url}"
 
     def toHTML(self):
         hoje = datetime.datetime.today()
+        txt_conectivo = ""
+        if self.conectivo == "até":
+            txt_conectivo = "até "
+
+        txt_pontos = "pontos" if self.pontos >1 else "ponto"
         if self.__emOferta__():
             extras = []
             if self.inicio.strftime("%Y%m%d") == hoje.strftime("%Y%m%d"):
@@ -72,6 +90,6 @@ class Parceria:
 
             if self.fim.strftime("%Y%m%d") == hoje.strftime("%Y%m%d"):
                 extras.append("🏁")
-            return f"<b>{self.empresa.nome}</b> {', '.join(extras)} - {self.pontos} pontos ({self.pontosClube} clube) por {self.moeda} - OFERTA ({self.inicio.strftime('%d/%m/%Y')} a {self.fim.strftime('%d/%m/%Y')}). <i>{self.regras}</i> {self.empresa.url}"
+            return f"<b>{self.empresa.nome}</b> {', '.join(extras)} - {txt_conectivo}{self.pontos} {txt_pontos} ({self.pontosClube} clube) por {self.moeda} - OFERTA ({self.inicio.strftime('%d/%m/%Y')} a {self.fim.strftime('%d/%m/%Y')}). <i>{self.regras}</i> {self.empresa.url}"
         else:
-            return f"<b>{self.empresa.nome}</b> - {self.pontos} pontos ({self.pontosClube} clube) por {self.moeda}. <i>{self.regras}</i> {self.empresa.url}"
+            return f"<b>{self.empresa.nome}</b> - {txt_conectivo}{self.pontos} {txt_pontos} ({self.pontosClube} clube) por {self.moeda}. <i>{self.regras}</i> {self.empresa.url}"
