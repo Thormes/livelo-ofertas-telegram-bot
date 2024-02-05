@@ -28,7 +28,7 @@ class UserRepository:
     def save(self, user: User) -> bool:
         existing = self.getById(user.chat_id)
         if existing is None:
-            properties = {"name": user.first_name, "last_name": user.last_name, "chat_id": user.chat_id}
+            properties = {"name": user.first_name, "last_name": user.last_name, "chat_id": user.chat_id, "username": user.username}
             add = DB.addRecord(self.__table, properties)
             return add.rowcount == 1
         else:

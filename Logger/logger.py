@@ -20,10 +20,7 @@ def get_logger(name: str, file: str = 'app.log', level=logging.INFO) -> Logger:
         backupCount=10,
         encoding="UTF-8")
 
-    structured_format = {"Timestamp": '%(asctime)s', "Thread": '%(threadName)s', "Logger": "%(name)s",
-                         "Level": '%(levelname)s', "Message": '%(message)s'}
-
-    formato = json.dumps(structured_format, ensure_ascii=False)
+    formato = '[%(asctime)s] [%(name)s] [%(levelname)s] [%(message)s]'
     formatter = Formatter(formato, datefmt='%Y-%m-%d %H:%M:%S')
     handler.setFormatter(formatter)
     logger = logging.getLogger(name)

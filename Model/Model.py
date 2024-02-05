@@ -17,6 +17,7 @@ class User:
         self.chat_id = None
         self.first_name = ""
         self.last_name = ""
+        self.username = ""
 
 
 class Acompanhamento:
@@ -41,8 +42,8 @@ class Parceria:
         self.id = None
 
     def __emOferta__(self):
-        hoje = datetime.datetime.today()
-        return self.oferta and self.inicio is not None and (self.inicio <= hoje and self.fim >= hoje)
+        hoje = datetime.datetime.today().date()
+        return self.oferta and self.inicio is not None and (self.inicio.date() <= hoje <= self.fim.date())
 
     def __str__(self):
         txt_conectivo = ""

@@ -16,7 +16,7 @@ def extractEmpresas():
     options = webdriver.ChromeOptions()
     options.add_argument("--headless=old")
     loger.info("Iniciando Chrome Driver")
-    driver = webdriver.Chrome(options)
+    driver = webdriver.Chrome()
     loger.info("Navegando até a página de parcerias")
     driver.get("https://www.livelo.com.br/ganhe-pontos-compre-e-pontue")
     try:
@@ -29,15 +29,16 @@ def extractEmpresas():
         return
     lista_cards = driver.find_element(By.ID, "div-cardsParity")
     parceiros = []
-    loger.info("Lendo cards de parcerias")
+    loger.info("Procurando cards de parcerias")
     if not lista_cards is None:
         cards = lista_cards.find_elements(By.ID, "div-parity")
+        loger.info(f"Encontrados {len(cards)} cards de parcerias")
         for card in cards:
             cardParceiro = CardParceiro()
             cardParceiro.fromCard(card)
             parceiros.append(cardParceiro)
 
-    loger.info("Realizando importação de", len(parceiros), "parceiros")
+    loger.info(f"Realizando importação de {len(parceiros)} parceiros")
     empresa_repository = EmpresaRepository()
     for card in parceiros:
         empresa = Empresa()

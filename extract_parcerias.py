@@ -16,7 +16,7 @@ def extract_parcerias():
     repository = EmpresaRepository()
     loger.info("Buscando Empresas")
     empresas = repository.getAll()
-    loger.info(len(empresas), "encontradas")
+    loger.info(f"{len(empresas)} encontradas")
     codigos = []
 
     for empresa in empresas:
@@ -37,7 +37,7 @@ def __cadastraParcerias(empresas: list, parcerias: Any):
     parceria_repository = ParceriaRepository()
     loger.info("Limpando registro de parcerias")
     parceria_repository.limpar()
-    loger.info("Iniciando cadastro de", len(parcerias), "parcerias")
+    loger.info(f"Iniciando cadastro de {len(parcerias)} parcerias")
     for parceria in parcerias:
         codigo = parceria['partnerCode']
         empresa = __findEmpresa(empresas, codigo)

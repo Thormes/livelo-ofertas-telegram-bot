@@ -1,7 +1,7 @@
 import sqlite3
 import os
 
-con = sqlite3.connect("database.db")
+con = sqlite3.connect("database.db", check_same_thread=False)
 cur = con.cursor()
 
 
@@ -12,7 +12,7 @@ def createTables():
         "CREATE TABLE IF NOT EXISTS parceria(empresa_id INTEGER PRIMARY KEY, moeda TEXT, "
         "pontos INTEGER, pontos_clube INTEGER, pontos_base INTEGER, conectivo TEXT, oferta BOOLEAN, inicio DATE, "
         "fim DATE, regras TEXT, FOREIGN KEY (empresa_id) REFERENCES empresa (id))")
-    cur.execute("CREATE TABLE IF NOT EXISTS user (chat_id INTEGER PRIMARY KEY, name TEXT, last_name TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS user (chat_id INTEGER PRIMARY KEY, name TEXT, last_name TEXT, username TEXT)")
     cur.execute("CREATE TABLE IF NOT EXISTS acompanhamento (chat_id INTEGER, empresa_codigo TEXT, ultima_informacao "
                 "DATE, PRIMARY KEY(chat_id, empresa_codigo))")
     con.commit()
