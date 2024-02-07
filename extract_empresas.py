@@ -1,10 +1,8 @@
+import json
 import time
-from CardParceiro import CardParceiro
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+
+import requests
+
 from Model.Model import Empresa
 from Repository.EmpresaRepository import EmpresaRepository
 
@@ -12,43 +10,26 @@ from Logger.logger import get_logger
 
 loger = get_logger("Empresas", "empresas.log")
 
+
 def extractEmpresas():
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless=old")
-    loger.info("Iniciando Chrome Driver")
-    driver = webdriver.Chrome()
-    loger.info("Navegando até a página de parcerias")
-    driver.get("https://www.livelo.com.br/ganhe-pontos-compre-e-pontue")
-    try:
-        loger.info("Aguardando localizar o primeiro elemento de card de parceria presente na página")
-        myElem = WebDriverWait(driver, 59).until(EC.presence_of_element_located((By.ID, 'div-parity')))
-
-    except TimeoutException:
-        loger.info("Elemento não foi encontrado, mesmo após 59 segundos")
-        driver.close()
-        return
-    lista_cards = driver.find_element(By.ID, "div-cardsParity")
-    parceiros = []
-    loger.info("Procurando cards de parcerias")
-    if not lista_cards is None:
-        cards = lista_cards.find_elements(By.ID, "div-parity")
-        loger.info(f"Encontrados {len(cards)} cards de parcerias")
-        for card in cards:
-            cardParceiro = CardParceiro()
-            cardParceiro.fromCard(card)
-            parceiros.append(cardParceiro)
-
-    loger.info(f"Realizando importação de {len(parceiros)} parceiros")
-    empresa_repository = EmpresaRepository()
-    for card in parceiros:
+    repository = EmpresaRepository()
+    response = requests.get(
+        "https://www.livelo.com.br/ccstore/v1/files/thirdparty/config_partners_compre_e_pontue.json")
+    empresas = json.loads(response.text)
+    if empresas is None:
+        raise ValueError("Json de empresas não é um json válido")
+    parceiros = empresas['partners']
+    loger.info(f"Encontrado um total de {len(parceiros)} empresas parceiras. Verificando parcerias ativas.")
+    ativas = list(filter(lambda x: x['enableBenefits'] is True and x['journey']['enabled'] is True, parceiros))
+    loger.info(f"Encontrados {len(ativas)} parcerias ativas.")
+    for emp in ativas:
+        if 'XXX' in emp['id']: continue
         empresa = Empresa()
-        empresa.nome = card.empresa
-        empresa.codigo = card.codigo
-        empresa.url = card.url
-        empresa_repository.save(empresa)
-
-    driver.close()
-
+        empresa.nome = emp['name']
+        empresa.codigo = emp['id']
+        url = "https://www.livelo.com.br" + emp['partnerDetailsPage'] if str(emp['partnerDetailsPage']).startswith("/") else emp['partnerDetailsPage']
+        empresa.url = url
+        repository.save(empresa)
 
 if __name__ == "__main__":
     extractEmpresas()
