@@ -116,7 +116,10 @@ async def listar_cadastradas(update: Update, context: ContextTypes.DEFAULT_TYPE)
     for existente in existentes:
         lista.append(existente.empresa.nome.upper())
 
-    txt_lista = "\n".join(lista)
+    if len(lista) == 0:
+        txt_lista = "Sem acompanhamentos encontrados"
+    else:
+        txt_lista = "\n".join(lista)
     await update.message.reply_text(
         f"Estou acompanhando as seguintes empresas para você:\n{txt_lista}"
     )

@@ -12,6 +12,7 @@ from Repository.ParceriaRepository import ParceriaRepository
 
 loger = get_logger("Parcerias", "parcerias.log")
 
+
 def extract_parcerias():
     repository = EmpresaRepository()
     loger.info("Buscando Empresas")
@@ -39,6 +40,8 @@ def __cadastraParcerias(empresas: list, parcerias: Any):
     parceria_repository.limpar()
     loger.info(f"Iniciando cadastro de {len(parcerias)} parcerias")
     for parceria in parcerias:
+        if parceria['parityBau'] is None:
+            continue
         codigo = parceria['partnerCode']
         empresa = __findEmpresa(empresas, codigo)
         newParceria = Parceria()
@@ -59,6 +62,7 @@ def __findEmpresa(empresas: list, codigo: str) -> Optional[Empresa]:
         if empresa.codigo == codigo:
             return empresa
     return None
+
 
 def __getDatesFromLegalTerm(parceria: Parceria):
     texto = parceria.regras
