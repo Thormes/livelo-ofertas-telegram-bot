@@ -12,7 +12,8 @@ def createTables():
         "CREATE TABLE IF NOT EXISTS parceria(empresa_id INTEGER PRIMARY KEY, moeda TEXT, "
         "pontos INTEGER, pontos_clube INTEGER, pontos_base INTEGER, conectivo TEXT, oferta BOOLEAN, inicio DATE, "
         "fim DATE, regras TEXT, FOREIGN KEY (empresa_id) REFERENCES empresa (id))")
-    cur.execute("CREATE TABLE IF NOT EXISTS user (chat_id INTEGER PRIMARY KEY, name TEXT, last_name TEXT, username TEXT)")
+    cur.execute(
+        "CREATE TABLE IF NOT EXISTS user (chat_id INTEGER PRIMARY KEY, name TEXT, last_name TEXT, username TEXT)")
     cur.execute("CREATE TABLE IF NOT EXISTS acompanhamento (chat_id INTEGER, empresa_codigo TEXT, ultima_informacao "
                 "DATE, PRIMARY KEY(chat_id, empresa_codigo))")
     con.commit()
@@ -21,8 +22,11 @@ def createTables():
 createTables()
 
 
-def getAll(table: str):
-    return cur.execute(f"SELECT * FROM {table}").fetchall()
+def getAll(table: str, order_by=("", "ASC")):
+    query = f"SELECT * FROM {table}"
+    if order_by[0] != "":
+        query += f" ORDER BY {order_by[0]} COLLATE NOCASE {order_by[1]}"
+    return cur.execute(query).fetchall()
 
 
 def getById(table: str, entityId: int):
@@ -42,5 +46,12 @@ def addRecord(table: str, properties: dict):
     number = number[0:-2]
     query = f"INSERT INTO {table} ({str(keys)}) values ({number})"
     response = cur.execute(query, params)
+    con.commit()
+    return response
+
+
+def removeBy(table: str, column: str, value: str):
+    param = (value,)
+    response = cur.execute(F"DELETE FROM {table} WHERE {column} = ?", param)
     con.commit()
     return response

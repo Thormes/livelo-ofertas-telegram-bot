@@ -35,17 +35,40 @@ class AcompanhamentoRepository:
         DB.cur.execute(f"DELETE FROM {self.__table}")
         DB.con.commit()
 
+    def remove(self, acompanhamento: Acompanhamento) -> bool:
+        query = f"DELETE FROM {self.__table} WHERE chat_id = ? AND empresa_codigo = ?"
+        params = (acompanhamento.user.chat_id, acompanhamento.empresa.codigo,)
+        exec = DB.cur.execute(query, params)
+        DB.con.commit()
+        return exec.rowcount > 0
+
+    def getAcompanhamentosComOfertas(self):
+        query = self.__baseQuery__
+        query += " WHERE id in (SELECT empresa_id FROM parceria WHERE oferta=1)"
+        result = DB.cur.execute(query).fetchall()
+        return [self.__mapInnerJoin(x) for x in result]
+
+    def registerEnvio(self, acompanhamento):
+        query = "UPDATE acompanhamento SET ultima_informacao=? WHERE chat_id=? AND empresa_codigo=?"
+        param=(datetime.datetime.today().strftime("%Y-%m-%d"),acompanhamento.user.chat_id, acompanhamento.empresa.codigo)
+        result = DB.cur.execute(query, param)
+        DB.con.commit()
+        return result.rowcount == 1
+
     def __mapInnerJoin(self, acomp: Any):
         u = User()
         ac = Acompanhamento()
         emp = Empresa()
         u.chat_id = acomp[3]
         u.first_name = acomp[4]
-        u.last_name = acomp[4]
-        emp.id = acomp[5]
-        emp.nome = acomp[6]
-        emp.codigo = acomp[7]
+        u.last_name = acomp[5]
+        u.username = acomp[6]
+        emp.id = acomp[7]
+        emp.nome = acomp[8]
+        emp.codigo = acomp[9]
+        emp.url = acomp[10]
         ac.empresa = emp
         ac.user = u
-        ac.ultima_informacao = datetime.datetime.strptime(acomp[2], "%Y-%m-%d")
+        ac.ultima_informacao = datetime.datetime.strptime(acomp[2], "%Y-%m-%d") if acomp[2] is not None else None
         return ac
+

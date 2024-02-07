@@ -50,9 +50,7 @@ class Parceria:
         if self.conectivo == "até":
             txt_conectivo = "até "
 
-        txt_pontos = "pontos" if self.pontos >1 else "ponto"
-
-
+        txt_pontos = "pontos" if self.pontos > 1 else "ponto"
 
         if self.__emOferta__():
             return f"*{self.empresa.nome}* - {txt_conectivo}{self.pontos} {txt_pontos} ({self.pontosClube} clube) por {self.moeda} - OFERTA ({self.inicio.strftime('%d/%m/%Y')} a {self.fim.strftime('%d/%m/%Y')}). _{self.regras}_ {self.empresa.url}"
@@ -65,7 +63,7 @@ class Parceria:
         if self.conectivo == "até":
             txt_conectivo = "até "
 
-        txt_pontos = "pontos" if self.pontos >1 else "ponto"
+        txt_pontos = "pontos" if self.pontos > 1 else "ponto"
         if self.__emOferta__():
             extras = []
             if self.inicio.strftime("%Y%m%d") == hoje.strftime("%Y%m%d"):
@@ -83,7 +81,7 @@ class Parceria:
         if self.conectivo == "até":
             txt_conectivo = "até "
 
-        txt_pontos = "pontos" if self.pontos >1 else "ponto"
+        txt_pontos = "pontos" if self.pontos > 1 else "ponto"
         if self.__emOferta__():
             extras = []
             if self.inicio.strftime("%Y%m%d") == hoje.strftime("%Y%m%d"):

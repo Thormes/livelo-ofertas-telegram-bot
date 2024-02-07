@@ -36,7 +36,8 @@ class ParceriaRepository:
 
     def save(self, parceria: Parceria) -> bool:
         properties = {"moeda": parceria.moeda, "pontos": parceria.pontos, "pontos_clube": parceria.pontosClube,
-                      "oferta": parceria.oferta, "regras": parceria.regras, "empresa_id": parceria.empresa.id, "pontos_base": parceria.pontosBase, "conectivo":parceria.conectivo}
+                      "oferta": parceria.oferta, "regras": parceria.regras, "empresa_id": parceria.empresa.id,
+                      "pontos_base": parceria.pontosBase, "conectivo": parceria.conectivo}
         if not parceria.inicio is None:
             properties["inicio"] = parceria.inicio.strftime("%Y-%m-%d")
         if not parceria.fim is None:
@@ -47,3 +48,7 @@ class ParceriaRepository:
     def limpar(self):
         DB.cur.execute(f"DELETE FROM {self.__table}")
         DB.con.commit()
+
+    def remove(self, parceria: Parceria) -> bool:
+        remove = DB.removeBy(self.__table, "empresa_id", parceria.empresa.id)
+        return remove.rowcount > 0

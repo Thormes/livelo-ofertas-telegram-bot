@@ -8,7 +8,7 @@ class EmpresaRepository:
 
     def getAll(self) -> List[Empresa]:
         lista = []
-        empresas = DB.getAll(self.__table)
+        empresas = DB.getAll(self.__table, ("nome", "ASC"))
         for empresa in empresas:
             emp = Empresa()
             emp.id = empresa[0]
@@ -22,10 +22,17 @@ class EmpresaRepository:
         existente = DB.getByProperty(self.__table, "url", empresa.url)
         if len(existente) > 0:
             return True
-        properties = {"nome":empresa.nome,"codigo":empresa.codigo, "url": empresa.url}
+        properties = {"nome": empresa.nome, "codigo": empresa.codigo, "url": empresa.url}
         add = DB.addRecord(self.__table, properties)
         return add.rowcount == 1
 
     def limpar(self):
         DB.cur.execute(f"DELETE FROM {self.__table}")
         DB.con.commit()
+
+    def remove(self, empresa: Empresa) -> bool:
+        remove = DB.removeBy(self.__table, "url", empresa.url)
+        if remove.rowcount > 0:
+            return True
+
+        return False
