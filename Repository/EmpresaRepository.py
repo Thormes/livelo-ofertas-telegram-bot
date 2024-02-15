@@ -19,7 +19,7 @@ class EmpresaRepository:
         return lista
 
     def save(self, empresa: Empresa) -> bool:
-        existente = DB.getByProperty(self.__table, "url", empresa.url)
+        existente = DB.getByProperty(self.__table, "codigo", empresa.codigo)
         if len(existente) > 0:
             return True
         properties = {"nome": empresa.nome, "codigo": empresa.codigo, "url": empresa.url}
