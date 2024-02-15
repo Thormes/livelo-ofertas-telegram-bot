@@ -11,6 +11,7 @@ from Helper.stringHelper import escape_characters
 from Model.Model import Acompanhamento, Empresa
 from Repository.EmpresaRepository import EmpresaRepository
 from Repository.AcompanhamentoRepository import AcompanhamentoRepository
+from Repository.ParceriaRepository import ParceriaRepository
 
 from Logger.logger import get_logger
 from Repository.UserRepository import UserRepository
@@ -22,6 +23,7 @@ INICIAL, AGUARDAR, FAZER_CADASTRO, DISPONIVEIS, CADASTRAR, LISTAR, DELETAR, EXEC
 acompanhamentoRep = AcompanhamentoRepository()
 empresaRep = EmpresaRepository()
 userRep = UserRepository()
+parceriaRep = ParceriaRepository()
 
 
 async def start_acompanhamento(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -112,9 +114,15 @@ async def listar_cadastradas(update: Update, context: ContextTypes.DEFAULT_TYPE)
     user = update.message.from_user
     loger.info("Listar Cadastradas do usuario %s", user.full_name)
     existentes = acompanhamentoRep.getByUserId(update.effective_chat.id)
+    parcerias = parceriaRep.getAll()
+    com_ofertas = [parc.empresa.codigo for parc in parcerias if parc.oferta and parc.inicio is not None]
     lista = []
     for existente in existentes:
-        lista.append(existente.empresa.nome.upper())
+        if existente.empresa.codigo in com_ofertas:
+            lista.append(existente.empresa.nome.upper() + " <-- (OFERTA ATIVA!)")
+        else:
+            lista.append(existente.empresa.nome.upper())
+
 
     if len(lista) == 0:
         txt_lista = "Sem acompanhamentos encontrados"
