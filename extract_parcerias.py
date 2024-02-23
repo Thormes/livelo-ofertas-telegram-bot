@@ -25,11 +25,14 @@ def extract_parcerias():
 
     param = ",".join(sorted(codigos))
     loger.info("Solicitando parcerias atualizadas")
-    response = requests.get("https://apis.pontoslivelo.com.br/partners-campaign/v1/campaigns/active",
+    try:
+        response = requests.get("https://apis.pontoslivelo.com.br/partners-campaign/v1/campaigns/active",
                             {"partnersCodes": param})
-    parcerias = json.loads(response.text)
+        parcerias = json.loads(response.text)
+        __cadastraParcerias(empresas, parcerias)
+    except Exception as ex:
+        loger.error("Não foi possível baixar parcerias: " + str(ex))
 
-    __cadastraParcerias(empresas, parcerias)
 
 
 def __cadastraParcerias(empresas: list, parcerias: Any):
@@ -40,21 +43,24 @@ def __cadastraParcerias(empresas: list, parcerias: Any):
     parceria_repository.limpar()
     loger.info(f"Iniciando cadastro de {len(parcerias)} parcerias")
     for parceria in parcerias:
-        if parceria['parityBau'] is None:
+        try:
+            if parceria['parityBau'] is None:
+                continue
+            codigo = parceria['partnerCode']
+            empresa = __findEmpresa(empresas, codigo)
+            newParceria = Parceria()
+            newParceria.empresa = empresa
+            newParceria.moeda = parceria["currency"]
+            newParceria.pontos = int(parceria["parity"])
+            newParceria.pontosClube = int(parceria["parityClub"])
+            newParceria.pontosBase = int(parceria["parityBau"])
+            newParceria.oferta = parceria["promotion"]
+            newParceria.regras = parceria['legalTerms']
+            newParceria.conectivo = parceria['separator']
+            __getDatesFromLegalTerm(newParceria)
+            parceria_repository.save(newParceria)
+        except Exception:
             continue
-        codigo = parceria['partnerCode']
-        empresa = __findEmpresa(empresas, codigo)
-        newParceria = Parceria()
-        newParceria.empresa = empresa
-        newParceria.moeda = parceria["currency"]
-        newParceria.pontos = int(parceria["parity"])
-        newParceria.pontosClube = int(parceria["parityClub"])
-        newParceria.pontosBase = int(parceria["parityBau"])
-        newParceria.oferta = parceria["promotion"]
-        newParceria.regras = parceria['legalTerms']
-        newParceria.conectivo = parceria['separator']
-        __getDatesFromLegalTerm(newParceria)
-        parceria_repository.save(newParceria)
 
 
 def __findEmpresa(empresas: list, codigo: str) -> Optional[Empresa]:
