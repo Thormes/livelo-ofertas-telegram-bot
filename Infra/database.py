@@ -16,6 +16,7 @@ def createTables():
         "CREATE TABLE IF NOT EXISTS user (chat_id INTEGER PRIMARY KEY, name TEXT, last_name TEXT, username TEXT)")
     cur.execute("CREATE TABLE IF NOT EXISTS acompanhamento (chat_id INTEGER, empresa_codigo TEXT, ultima_informacao "
                 "DATE, PRIMARY KEY(chat_id, empresa_codigo))")
+    cur.execute("CREATE TABLE IF NOT EXISTS categoria (id INTEGER PRIMARY KEY, nome TEXT, descricao TEXT)")
     con.commit()
 
 

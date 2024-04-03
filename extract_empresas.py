@@ -3,8 +3,9 @@ import time
 
 import requests
 
-from Model.Model import Empresa
+from Model.Model import Empresa, Categoria
 from Repository.EmpresaRepository import EmpresaRepository
+from Repository.CategoriaRepository import CategoriaRepository
 
 from Logger.logger import get_logger
 
@@ -29,17 +30,29 @@ def extractEmpresas():
 
     parceiros = empresas['partners']
     loger.info(f"Encontrado um total de {len(parceiros)} empresas parceiras. Verificando parcerias ativas.")
-    ativas = list(filter(lambda x: x['enableBenefits'] is True and x['journey']['enabled'] is True, parceiros))
+    ativas = list(filter(lambda x: x['enableBenefits'] is True, parceiros))
+    ativas = sorted(ativas, key=lambda x: x['name'].lower())
     loger.info(f"Encontrados {len(ativas)} parcerias ativas.")
     for emp in ativas:
         if 'XXX' in emp['id']: continue
         empresa = Empresa()
-        empresa.nome = emp['name']
-        empresa.codigo = emp['id']
+        empresa.nome = emp['name'].strip()
+        empresa.codigo = emp['id'].strip()
+        empresa.categorias = emp['categories']
         url = "https://www.livelo.com.br" + emp['partnerDetailsPage'] if str(emp['partnerDetailsPage']).startswith(
             "/") else emp['partnerDetailsPage']
         empresa.url = url
         repository.save(empresa)
+
+    categoriaRepository = CategoriaRepository()
+    loger.info("Realizando importação de categorias")
+    categorias = empresas['categories']
+    loger.info(f"Encontrado um total de {len(categorias)} categorias")
+    for categoria in categorias:
+        if categoria == 'e' or categoria == 'ou':
+            continue
+        cat = Categoria(nome=categoria.strip())
+        categoriaRepository.save(cat)
 
 
 if __name__ == "__main__":

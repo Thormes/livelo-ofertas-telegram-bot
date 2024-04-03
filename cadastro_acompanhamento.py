@@ -8,10 +8,11 @@ from telegram.ext import (
 )
 
 from Helper.stringHelper import escape_characters
-from Model.Model import Acompanhamento, Empresa
+from Model.Model import Acompanhamento, Empresa, Categoria
 from Repository.EmpresaRepository import EmpresaRepository
 from Repository.AcompanhamentoRepository import AcompanhamentoRepository
 from Repository.ParceriaRepository import ParceriaRepository
+from Repository.CategoriaRepository import CategoriaRepository
 
 from Logger.logger import get_logger
 from Repository.UserRepository import UserRepository
@@ -24,6 +25,7 @@ acompanhamentoRep = AcompanhamentoRepository()
 empresaRep = EmpresaRepository()
 userRep = UserRepository()
 parceriaRep = ParceriaRepository()
+categoriaRep = CategoriaRepository()
 
 
 async def start_acompanhamento(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:

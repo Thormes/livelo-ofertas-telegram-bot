@@ -13,6 +13,7 @@ from Model.Model import User
 from Repository.AcompanhamentoRepository import AcompanhamentoRepository
 from Repository.ParceriaRepository import ParceriaRepository
 from Repository.UserRepository import UserRepository
+from analisar_ingresso_graduado_ufca import get_edital_date, houveAtualizacao
 from cadastro_acompanhamento import get_acompanhamento_handler
 from extract_empresas import extractEmpresas
 from extract_parcerias import extract_parcerias
@@ -26,6 +27,7 @@ fileLoger = get_logger("TelegramBOT", "telegram.log")
 errorLogger = get_logger("Errors", "errors.log")
 httoLogger = get_logger("httpx", "httpx.log")
 acompanhamentoLogger = get_logger("Acompanhamentos", "acompanhamentos.log")
+editalLogger = get_logger("Edital UFCA", "ufca.log")
 token = open("token.txt", "r").read()
 
 application = None
@@ -106,7 +108,8 @@ def avisaAcompanhamento():
         for acompanhamento in acompanhando:
             if acompanhamento.ultima_informacao is None or acompanhamento.ultima_informacao < parceria.inicio:
                 try:
-                    acompanhamentoLogger.info(f"Registrando oferta em {parceria.empresa.nome} para @{acompanhamento.user.username}")
+                    acompanhamentoLogger.info(
+                        f"Registrando oferta em {parceria.empresa.nome} para @{acompanhamento.user.username}")
                     result = loop.run_until_complete(application.bot.send_message(chat_id=acompanhamento.user.chat_id,
                                                                                   text=escape_characters(
                                                                                       f"{parceria.empresa.nome.upper()} acabou de "
@@ -129,6 +132,20 @@ async def addUser(update: Update, context: ContextTypes.DEFAULT_TYPE):
     userRepository.save(u)
 
 
+def avisaEdital():
+    if not houveAtualizacao():
+        editalLogger.info(f"Ultimo edital ainda vigente")
+        return
+    edital = get_edital_date()
+    editalLogger.info("Novo edital ou aditivo lançado em " + edital.strftime("%d/%m/%Y %H:%M:%S"))
+    loop = asyncio.new_event_loop()
+    result = loop.run_until_complete(application.bot.send_message(chat_id=1073226014,
+                                                                      text=
+                                                                          f"Novo edital ou aditivo de ingresso de "
+                                                                          f"graduado lançado pela UFCA em "
+                                                                          f"{edital.strftime('%d/%m/%Y %H:%M:%S')}\nAcessível em https://www.ufca.edu.br/admissao/graduacao/graduados-e-transferidos/editais-e-resultados/"))
+
+
 if __name__ == '__main__':
     application = ApplicationBuilder().token(token).read_timeout(30).write_timeout(30).build()
     start_handler = CommandHandler('start', start)
@@ -144,7 +161,8 @@ if __name__ == '__main__':
     application.add_handler(unknown_handler)
     schedule.every(20).minutes.do(extract_parcerias)
     schedule.every(10).minutes.do(avisaAcompanhamento)
-    schedule.every().day.at("06:00").do(extractEmpresas)
+    schedule.every(6).hours.do(extractEmpresas)
+    schedule.every(6).hours.do(avisaEdital)
     t = threading.Thread(target=run_schedule)
     t.start()
     application.run_polling(timeout=30)

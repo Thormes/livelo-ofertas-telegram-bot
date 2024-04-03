@@ -1,4 +1,5 @@
 import datetime
+from typing import List
 
 
 class Empresa:
@@ -6,6 +7,7 @@ class Empresa:
         self.nome = ""
         self.codigo = ""
         self.url = ""
+        self.categorias: List[Categoria] = []
         self.id = None
 
     def __str__(self):
@@ -25,6 +27,12 @@ class Acompanhamento:
         self.user = None
         self.empresa = None
         self.ultima_informacao = None
+
+
+class Categoria:
+    def __init__(self, nome, descricao=''):
+        self.nome = nome
+        self.descricao = descricao
 
 
 class Parceria:
